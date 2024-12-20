@@ -374,6 +374,25 @@ def filter_climate_segments(input_folder, output_folder):
 
 filter_climate_segments(text_folder, output_folder)
 
+"""## Creating one dataset"""
+
+text_folder = '/content/drive/MyDrive/Big Data Project/NLP analysis/text_files/climate_only_paragraphs'
+
+combined_data = {}
+
+for file_name in os.listdir(text_folder):
+    if file_name.endswith('.json'):
+        file_path = os.path.join(text_folder, file_name)
+        with open(file_path, 'r', encoding='utf-8') as json_file:
+            try:
+                data = json.load(json_file)
+                key = os.path.splitext(file_name)[0]
+                combined_data[key] = data
+
+output_path = '/content/drive/MyDrive/Big Data Project/NLP analysis/ESG-Report_dataset.json'
+with open(output_path, 'w', encoding='utf-8') as json_output_file:
+    json.dump(combined_data, json_output_file, indent=4, ensure_ascii=False)
+
 """# Sentiment Score from the climate_sentiment_model
 
 ### Necessary libraries
@@ -402,7 +421,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Nutze Gerät: {device}")
 
-text_folder = '/content/drive/MyDrive/Big Data Project/NLP analysis/text_files/climate_only_paragraphs'
+text_folder = '/content/drive/MyDrive/Big Data Project/NLP analysis/ESG-Report_dataset.json'
 base_model = "bert-base-uncased"
 model_dir = "/content/drive/MyDrive/Big Data Project/NLP analysis/climate_models/climate_sentiment_model"
 
@@ -457,10 +476,14 @@ def predict_label(segment):
 
     return mapped_label, probabilities
 
-def analyze_file(file_path):
-    with open(file_path, "r", encoding="utf-8") as file:
-        data = json.load(file)
-        text = data.get("content", "")
+def analyze_file(file_input):
+    if isinstance(file_input, dict):
+        data = file_input
+    else:
+        with open(file_input, "r", encoding="utf-8") as file:
+            data = json.load(file)
+
+    text = data.get("content", "")
 
     segments = split_text_into_segments(text)
 
@@ -478,17 +501,20 @@ def analyze_file(file_path):
 
 """### Sentiment Analysis of Every ESG-Report"""
 
-text_folder = '/content/drive/MyDrive/Big Data Project/NLP analysis/text_files/climate_only_paragraphs'
+combined_json_path = '/content/drive/MyDrive/Big Data Project/NLP analysis/ESG-Report_dataset.json'
+
+with open(combined_json_path, 'r') as f:
+    combined_data = json.load(f)
 
 results = {}
 total_segments_analyzed = 0
 
-for filename in os.listdir(text_folder):
-    file_path = os.path.join(text_folder, filename)
-    if os.path.isfile(file_path) and filename.endswith(".json"):
-        overall_index, segment_results = analyze_file(file_path)
-        results[filename] = {"overall_index": overall_index, "segment_results": segment_results}
-        total_segments_analyzed += len(segment_results)
+# Iterate through each file-like entry in the combined dataset
+for filename, file_content in combined_data.items():
+    # Assuming `analyze_file` can handle the content directly as a dictionary
+    overall_index, segment_results = analyze_file(file_content)  # Adjust this to match your `analyze_file` function
+    results[filename] = {"overall_index": overall_index, "segment_results": segment_results}
+    total_segments_analyzed += len(segment_results)
 
 print(f"Total segments analyzed: {total_segments_analyzed}")
 
@@ -531,35 +557,3 @@ sorted_results = natsorted(
 
 df = pd.DataFrame(sorted_results, columns=["Filename", "Overall Index"])
 df.to_csv(output_csv, index=False, encoding='utf-8')
-
-"""Create a df with all PDFs"""
-
-import os
-import json
-
-# Folder containing your JSON files
-text_folder = '/content/drive/MyDrive/Big Data Project/NLP analysis/text_files/climate_only_paragraphs'
-
-# Initialize an empty dictionary to store the data
-combined_data = {}
-
-# Iterate over all JSON files in the folder
-for file_name in os.listdir(text_folder):
-    if file_name.endswith('.json'):
-        file_path = os.path.join(text_folder, file_name)
-        with open(file_path, 'r', encoding='utf-8') as json_file:
-            try:
-                # Load the JSON data
-                data = json.load(json_file)
-                # Use the filename (without extension) as the key
-                key = os.path.splitext(file_name)[0]
-                combined_data[key] = data
-            except json.JSONDecodeError:
-                print(f"Error decoding JSON file: {file_name}")
-
-# Save the combined data as a JSON file
-output_path = '/content/drive/MyDrive/Big Data Project/NLP analysis/ESG-Report_dataset.json'
-with open(output_path, 'w', encoding='utf-8') as json_output_file:
-    json.dump(combined_data, json_output_file, indent=4, ensure_ascii=False)
-
-print(f"Dataset saved to {output_path}")
