@@ -9,13 +9,11 @@ Original file is located at
 Test 15/12
 """
 
-
-
 pip install geopandas matplotlib
 !pip install scrapy
 !pip install basemap basemap-data-hires
 
-"""** Final**
+"""##Final Code##
 
 **Intermediary Steps: Scrapping an Actual Website**
 """
@@ -113,6 +111,8 @@ if classified_headlines:
             print(f"  {i}. {headline}")
 else:
     print("No relevant headlines found between 2020 and 2023.")
+
+"""**Final scrapper incorporating scrapping Google news + Real Website**"""
 
 import requests
 from bs4 import BeautifulSoup
@@ -350,13 +350,10 @@ def scrape_disaster_related_news():
 if __name__ == "__main__":
     scrape_disaster_related_news()
 
-"""TEST FINAL
+"""##DRAFT##
 
+Plotting on a map
 """
-
-
-
-"""Plotting on a map"""
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
