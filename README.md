@@ -5,10 +5,10 @@ This project explores the impact of climate disaster exposure on the language an
 ## Background
 ESG reporting has become a critical tool for companies to communicate their activities and manage investor concerns. Literature highlights:
 
-- ESG reporting affects risk premia and financial performance ([1-3]).
-- Reports serve as signaling mechanisms for investors ([4]).
-- ESG scores by institutions lack transparency and are sensitive to weighting ([5]).
-- NLP provides alternative methods for estimating ESG sentiment ([6-10]).
+- ESG reporting affects risk premia and financial performance.
+- Reports serve as signaling mechanisms for investors.
+- ESG scores by institutions lack transparency and are sensitive to weighting.
+- NLP provides alternative methods for estimating ESG sentiment.
 
 ## Objectives
 - Examine how climate disasters influence ESG reporting language.
